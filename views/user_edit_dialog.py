@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QBrush, QColor, QLinearGradient, QFont
 from PyQt5.QtCore import QRectF
 from services.ad_service import AdService
+from utils.resource_helper import get_resource_path
 
 
 class UserEditDialog(QDialog):
@@ -22,14 +23,14 @@ class UserEditDialog(QDialog):
 
     def _load_stylesheet(self):
         """加载 QSS 样式表"""
-        style_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'style.qss')
+        style_path = get_resource_path('resources/style.qss')
         if os.path.exists(style_path):
             with open(style_path, 'r', encoding='utf-8') as f:
                 self.setStyleSheet(f.read())
 
     def _set_window_icon(self):
         """设置窗口图标"""
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'icon.ico')
+        icon_path = get_resource_path('resources/icon.ico')
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
             return

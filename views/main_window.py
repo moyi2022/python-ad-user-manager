@@ -9,6 +9,7 @@ from services.ad_service import AdService
 from services.settings_service import SettingsService
 from services.export_service import ExportService
 from services.log_service import LogService
+from utils.resource_helper import get_resource_path
 from .user_edit_dialog import UserEditDialog
 from .settings_dialog import SettingsDialog
 
@@ -33,7 +34,7 @@ class MainWindow(QMainWindow):
 
     def _load_stylesheet(self):
         """加载 QSS 样式表"""
-        style_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'style.qss')
+        style_path = get_resource_path('resources/style.qss')
         if os.path.exists(style_path):
             with open(style_path, 'r', encoding='utf-8') as f:
                 self.setStyleSheet(f.read())
@@ -43,8 +44,7 @@ class MainWindow(QMainWindow):
         from PyQt5.QtGui import QPainter, QBrush, QColor, QLinearGradient, QFont
         from PyQt5.QtCore import QRectF, Qt
 
-        # 尝试从文件加载图标
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'icon.ico')
+        icon_path = get_resource_path('resources/icon.ico')
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
             return
