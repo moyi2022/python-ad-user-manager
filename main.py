@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from views.login_dialog import LoginDialog
 from views.main_window import MainWindow

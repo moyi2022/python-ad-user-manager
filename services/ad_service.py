@@ -2,6 +2,29 @@ from ldap3 import Server, Connection, ALL, SUBTREE, MODIFY_REPLACE, MODIFY_DELET
 from .log_service import LogService
 
 
+def _safe_str(value):
+    """安全转换 ldap3 值为字符串，确保中文不转义"""
+    if value is None:
+        return ''
+    # 直接获取值，避免 ldap3 的序列化转义
+    if hasattr(value, 'value'):
+        v = value.value
+        if v is None:
+            return ''
+        if isinstance(v, bytes):
+            try:
+                return v.decode('utf-8')
+            except:
+                return v.decode('gbk', errors='ignore')
+        return str(v)
+    if isinstance(value, bytes):
+        try:
+            return value.decode('utf-8')
+        except:
+            return value.decode('gbk', errors='ignore')
+    return str(value)
+
+
 class AdService:
     def __init__(self):
         self._server = None
@@ -44,17 +67,17 @@ class AdService:
                 ]
             )
             for entry in self._conn.entries:
-                uac = int(entry.userAccountControl.value) if hasattr(entry, 'userAccountControl') and entry.userAccountControl else 0
-                disabled = (uac & 2) != 0
-                dn = str(entry.distinguishedName) if hasattr(entry, 'distinguishedName') and entry.distinguishedName else ''
+                uac = _safe_str(entry.userAccountControl) if hasattr(entry, 'userAccountControl') and entry.userAccountControl else '0'
+                disabled = (int(uac) & 2) != 0
+                dn = _safe_str(entry.distinguishedName)
                 users.append({
-                    'username': str(entry.sAMAccountName) if hasattr(entry, 'sAMAccountName') and entry.sAMAccountName else '',
-                    'display_name': str(entry.displayName) if hasattr(entry, 'displayName') and entry.displayName else '',
-                    'first_name': str(entry.givenName) if hasattr(entry, 'givenName') and entry.givenName else '',
-                    'last_name': str(entry.sn) if hasattr(entry, 'sn') and entry.sn else '',
-                    'email': str(entry.mail) if hasattr(entry, 'mail') and entry.mail else '',
-                    'department': str(entry.department) if hasattr(entry, 'department') and entry.department else '',
-                    'title': str(entry.title) if hasattr(entry, 'title') and entry.title else '',
+                    'username': _safe_str(entry.sAMAccountName),
+                    'display_name': _safe_str(entry.displayName),
+                    'first_name': _safe_str(entry.givenName),
+                    'last_name': _safe_str(entry.sn),
+                    'email': _safe_str(entry.mail),
+                    'department': _safe_str(entry.department),
+                    'title': _safe_str(entry.title),
                     'enabled': not disabled,
                     'dn': dn
                 })
@@ -195,8 +218,8 @@ class AdService:
                 attributes=['distinguishedName', 'name', 'description']
             )
             for entry in self._conn.entries:
-                dn = str(entry.distinguishedName) if hasattr(entry, 'distinguishedName') and entry.distinguishedName else ''
-                name = str(entry.name) if hasattr(entry, 'name') and entry.name else ''
+                dn = _safe_str(entry.distinguishedName)
+                name = _safe_str(entry.name)
                 if 'CN=ForeignSecurityPrincipals' not in dn and 'CN=Program Data' not in dn:
                     ous.append({
                         'dn': dn,
